@@ -21,7 +21,9 @@ def remover_sessao(): #lucas
     pass
 
 def main():  #rafael interface do programa
-    pass
+    root = tk.Tk()
+    
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
