@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import sqlite3
 
-def create_tables(): #Lohan
+def create_tables(): # Lohan
     db_conn = sqlite3.connect("estoque.db")
     db_cursor = db_conn.cursor()
     
