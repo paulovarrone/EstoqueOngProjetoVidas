@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import sqlite3
 
-def create_tables(): # Lohan
+def create_tables():
     db_conn = sqlite3.connect("estoque.db")
     db_cursor = db_conn.cursor()
     
@@ -35,16 +35,39 @@ def obter_sessoes():
     db_conn.close()
     return sessoes
 
-def adicionar_sessao(): #lohan 
+def adicionar_sessao(entry_sessao, lista_estoque):
+    sessao = entry_sessao.get()
+
+    if sessao:
+        db_conn = sqlite3.connect("estoque.db")
+        db_cursor = db_conn.cursor()
+
+        try:
+            # Verificar se a sessão já existe
+            db_cursor.execute("SELECT id FROM sessoes WHERE nome=?", (sessao,))
+            sessao_info = db_cursor.fetchone()
+            if not sessao_info:
+                # Se a seção não existir, adicioná-la
+                db_cursor.execute("INSERT INTO sessoes (nome) VALUES (?)", (sessao,))
+                db_conn.commit()
+            else:
+                messagebox.showwarning("Aviso", "Esta sessão já existe.")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Ocorreu um erro: {e}")
+        
+        db_conn.close()
+        mostrar_estoque(lista_estoque)
+        entry_sessao.delete(0, tk.END)
+    else:
+        messagebox.showerror("Erro", "Por favor, preencha o campo de sessão.")
+
+def adicionar_produto(): #Lucas
     pass
 
-def adicionar_produto(): #paulo
+def mostrar_estoque(): #Douglas
     pass
 
-def mostrar_estoque(): #paulo
-    pass
-
-def remover_sessao(): #lucas
+def remover_sessao(): #Joao
     pass
 
 def main():  #rafael interface do programa
