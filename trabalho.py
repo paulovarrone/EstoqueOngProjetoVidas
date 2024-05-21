@@ -25,8 +25,15 @@ def create_tables(): # Lohan
     db_conn.commit()
     db_conn.close()
 
-def obter_sessoes(): #joao 
-    pass
+def obter_sessoes():
+    db_conn = sqlite3.connect("estoque.db")
+    db_cursor = db_conn.cursor()
+
+    db_cursor.execute("SELECT id, nome FROM sessoes")
+    sessoes = db_cursor.fetchall()
+
+    db_conn.close()
+    return sessoes
 
 def adicionar_sessao(): #lohan 
     pass
