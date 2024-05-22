@@ -72,9 +72,8 @@ def remover_sessao(): #Joao
 
 def main():  #rafael interface do programa
     root = tk.Tk()
-    root.title("Sistema de Estoque")
+    root.title("Sistema de Estoque ONG Projeto Vidas - Vassouras")
 
-    root.iconbitmap("un.ico")
     root['bg'] = '#0b5884'
     root.resizable(0, 0)
 
