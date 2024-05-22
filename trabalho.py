@@ -61,8 +61,64 @@ def adicionar_sessao(entry_sessao, lista_estoque):
     else:
         messagebox.showerror("Erro", "Por favor, preencha o campo de sessão.")
 
-def adicionar_produto(): #Lucas
-    pass
+def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque): #Lucas
+    produto = entry_produto.get()
+    quantidade = entry_quantidade.get()
+    sessao = entry_sessao.get()
+
+    if produto and quantidade and sessao:
+        db_conn = sqlite3.connect("estoque.db")
+        
+        db_cursor = db_conn.cursor()
+
+        # Verificar se a sessão existe
+        db_cursor.execute("SELECT id FROM sessoes WHERE nome=?", (sessao,))
+        sessao_info = db_cursor.fetchone()
+        if not sessao_info:
+            messagebox.showwarning("Erro", "A sessão especificada não existe.")
+            db_conn.close()
+            
+            return
+        
+        sessao_id = sessao_info[0]
+
+        if produto and quantidade:
+            # Verificar se o produto existe na seção
+            db_cursor.execute("SELECT id FROM produtos WHERE nome=? AND sessao_id=?", (produto, sessao_id))
+            produto_info = db_cursor.fetchone()
+            if not produto_info:
+                # Se o produto não existir na seção, adicioná-lo
+                db_cursor.execute("INSERT INTO produtos (nome, sessao_id) VALUES (?, ?)", (produto, sessao_id))
+                produto_id = db_cursor.lastrowid
+            else:
+                produto_id = produto_info[0]
+
+            # Verificar se o produto já existe no estoque
+            db_cursor.execute("SELECT quantidade FROM estoque WHERE produto_id=?", (produto_id,))
+            quantidade_existente = db_cursor.fetchone()
+
+        
+            if quantidade_existente:
+                nova_quantidade = quantidade_existente[0] + int(quantidade)
+                db_cursor.execute("UPDATE estoque SET quantidade=? WHERE produto_id=?", (nova_quantidade, produto_id))
+            else:
+                db_cursor.execute("INSERT INTO estoque (produto_id, quantidade) VALUES (?, ?)", (produto_id, quantidade))
+                nova_quantidade = int(quantidade)
+
+            if nova_quantidade == 0:
+                # Se a nova quantidade for zero, remover o produto
+                db_cursor.execute("DELETE FROM estoque WHERE produto_id=?", (produto_id,))
+                db_cursor.execute("DELETE FROM produtos WHERE id=?", (produto_id,))
+            
+        db_conn.commit()
+        db_conn.close()
+
+        mostrar_estoque(lista_estoque)
+        entry_produto.delete(0, tk.END)
+        entry_quantidade.delete(0, tk.END)
+        entry_sessao.delete(0, tk.END)
+    else:
+        messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
 
 def mostrar_estoque(): #Douglas
     pass
