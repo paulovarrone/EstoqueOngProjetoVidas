@@ -124,7 +124,35 @@ def mostrar_estoque(): #Douglas
     pass
 
 def remover_sessao(): #Joao
-    pass
+    def mostrar_estoque(lista_estoque):
+        lista_estoque.delete(0, tk.END)
+
+        sessoes = obter_sessoes()
+
+        if not sessoes:
+            lista_estoque.insert(tk.END, "Nenhuma sessão encontrada.")
+            return
+
+        for sessao in sessoes:
+            lista_estoque.insert(tk.END, (f" "))
+            lista_estoque.insert(tk.END, (f"------------------------------ {sessao[1]} ------------------------------ "))
+            lista_estoque.insert(tk.END, (f" "))
+
+            db_conn = sqlite3.connect("estoque.db")
+            db_cursor = db_conn.cursor()
+
+            db_cursor.execute(
+                "SELECT produtos.nome, estoque.quantidade FROM produtos INNER JOIN estoque ON produtos.id = estoque.produto_id WHERE produtos.sessao_id=?",
+                (sessao[0],))
+            produtos = db_cursor.fetchall()
+
+            if not produtos:
+                lista_estoque.insert(tk.END, "Nenhum produto encontrado nesta sessão.")
+            else:
+                for produto in produtos:
+                    lista_estoque.insert(tk.END, (f"{produto[0]} > {produto[1]} unidades"))
+
+            db_conn.close()
 
 def main():  #rafael interface do programa
     root = tk.Tk()
