@@ -170,6 +170,36 @@ def remover_sessao(entry_sessao, lista_estoque):
     else:
         messagebox.showerror("Erro", "Por favor, especifique a sessão que deseja remover.")
 
+def carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quantidade, entry_sessao):
+    selected_item = lista_estoque.curselection()
+    if not selected_item:
+        return
+    
+    index = selected_item[0]
+    item_text = lista_estoque.get(index)
+    
+    if " > " in item_text:
+        produto_nome, quantidade_text = item_text.split(" > ")
+        quantidade = quantidade_text.split(" ")[0]
+        
+        db_conn = sqlite3.connect("estoque.db")
+        db_cursor = db_conn.cursor()
+        
+        db_cursor.execute("SELECT sessoes.nome FROM produtos INNER JOIN sessoes ON produtos.sessao_id = sessoes.id WHERE produtos.nome=?", (produto_nome,))
+        sessao_nome = db_cursor.fetchone()
+        
+        db_conn.close()
+        
+        if sessao_nome:
+            entry_produto.delete(0, tk.END)
+            entry_produto.insert(0, produto_nome)
+            
+            entry_quantidade.delete(0, tk.END)
+            entry_quantidade.insert(0, quantidade)
+            
+            entry_sessao.delete(0, tk.END)
+            entry_sessao.insert(0, sessao_nome[0])
+
 def main():
     root = tk.Tk()
     root.title("Sistema de Estoque")
@@ -209,6 +239,7 @@ def main():
 
     lista_estoque = tk.Listbox(root, font=("Arial", 13), height=22, width=55)
     lista_estoque.grid(row=6, column=0, columnspan=2, padx=20, pady=20, sticky="sn")
+    lista_estoque.bind('<<ListboxSelect>>', lambda event: carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quantidade, entry_sessao))
 
     mostrar_estoque(lista_estoque)
 
