@@ -47,7 +47,7 @@ def adicionar_sessao(entry_sessao, lista_estoque):
             db_cursor.execute("SELECT id FROM sessoes WHERE nome=?", (sessao,))
             sessao_info = db_cursor.fetchone()
             if not sessao_info:
-                # Se a seção não existir, adicioná-la
+                # Se a sessão não existir, adicioná-la
                 db_cursor.execute("INSERT INTO sessoes (nome) VALUES (?)", (sessao,))
                 db_conn.commit()
             else:
@@ -61,7 +61,6 @@ def adicionar_sessao(entry_sessao, lista_estoque):
     else:
         messagebox.showerror("Erro", "Por favor, preencha o campo de sessão.")
 
-
 def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque):
     produto = entry_produto.get()
     quantidade = entry_quantidade.get()
@@ -69,7 +68,6 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
 
     if produto and quantidade and sessao:
         db_conn = sqlite3.connect("estoque.db")
-        
         db_cursor = db_conn.cursor()
 
         # Verificar se a sessão existe
@@ -78,17 +76,16 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
         if not sessao_info:
             messagebox.showwarning("Erro", "A sessão especificada não existe.")
             db_conn.close()
-            
             return
         
         sessao_id = sessao_info[0]
 
         if produto and quantidade:
-            # Verificar se o produto existe na seção
+            # Verificar se o produto existe na sessão
             db_cursor.execute("SELECT id FROM produtos WHERE nome=? AND sessao_id=?", (produto, sessao_id))
             produto_info = db_cursor.fetchone()
             if not produto_info:
-                # Se o produto não existir na seção, adicioná-lo
+                # Se o produto não existir na sessão, adicioná-lo
                 db_cursor.execute("INSERT INTO produtos (nome, sessao_id) VALUES (?, ?)", (produto, sessao_id))
                 produto_id = db_cursor.lastrowid
             else:
@@ -98,7 +95,6 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
             db_cursor.execute("SELECT quantidade FROM estoque WHERE produto_id=?", (produto_id,))
             quantidade_existente = db_cursor.fetchone()
 
-        
             if quantidade_existente:
                 nova_quantidade = quantidade_existente[0] + int(quantidade)
                 db_cursor.execute("UPDATE estoque SET quantidade=? WHERE produto_id=?", (nova_quantidade, produto_id))
@@ -106,10 +102,9 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
                 db_cursor.execute("INSERT INTO estoque (produto_id, quantidade) VALUES (?, ?)", (produto_id, quantidade))
                 nova_quantidade = int(quantidade)
 
+            # Remover o produto do estoque se a quantidade for 0, mas não da tabela de produtos
             if nova_quantidade == 0:
-                # Se a nova quantidade for zero, remover o produto
-                db_cursor.execute("DELETE FROM estoque WHERE produto_id=?", (produto_id,))
-                db_cursor.execute("DELETE FROM produtos WHERE id=?", (produto_id,))
+                db_cursor.execute("UPDATE estoque SET quantidade=0 WHERE produto_id=?", (produto_id,))
             
         db_conn.commit()
         db_conn.close()
@@ -120,7 +115,6 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
         entry_sessao.delete(0, tk.END)
     else:
         messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
-
 
 def mostrar_estoque(lista_estoque):
     lista_estoque.delete(0, tk.END)
@@ -216,7 +210,6 @@ def main():
     mostrar_estoque(lista_estoque)
 
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
