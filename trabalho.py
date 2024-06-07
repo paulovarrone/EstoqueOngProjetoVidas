@@ -102,8 +102,11 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
                 db_cursor.execute("INSERT INTO estoque (produto_id, quantidade) VALUES (?, ?)", (produto_id, quantidade))
                 nova_quantidade = int(quantidade)
 
-            # Remover o produto do estoque se a quantidade for 0, mas não da tabela de produtos
-            if nova_quantidade == 0:
+            if nova_quantidade == -1:
+                # Se a nova quantidade for -1, remover o produto
+                db_cursor.execute("DELETE FROM estoque WHERE produto_id=?", (produto_id,))
+                db_cursor.execute("DELETE FROM produtos WHERE id=?", (produto_id,))
+            elif nova_quantidade == 0:
                 db_cursor.execute("UPDATE estoque SET quantidade=0 WHERE produto_id=?", (produto_id,))
             
         db_conn.commit()
