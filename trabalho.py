@@ -61,7 +61,7 @@ def adicionar_sessao(entry_sessao, lista_estoque):
     else:
         messagebox.showerror("Erro", "Por favor, preencha o campo de sessão.")
 
-def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque): #Lucas
+def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque): 
     produto = entry_produto.get()
     quantidade = entry_quantidade.get()
     sessao = entry_sessao.get()
@@ -148,64 +148,34 @@ def mostrar_estoque(lista_estoque): #Douglas
 
             db_conn.close()
 
-    def remover_sessao(entry_sessao, lista_estoque):
-        sessao = entry_sessao.get()
+def remover_sessao(entry_sessao, lista_estoque):
+    sessao = entry_sessao.get()
 
-        if sessao:
-            db_conn = sqlite3.connect("estoque.db")
-            db_cursor = db_conn.cursor()
+    if sessao:
+        db_conn = sqlite3.connect("estoque.db")
+        db_cursor = db_conn.cursor()
 
-            db_cursor.execute("SELECT id FROM sessoes WHERE nome=?", (sessao,))
-            sessao_info = db_cursor.fetchone()
-            if sessao_info:
-                sessao_id = sessao_info[0]
-                db_cursor.execute("DELETE FROM estoque WHERE produto_id IN (SELECT id FROM produtos WHERE sessao_id=?)", (sessao_id,))
-                db_cursor.execute("DELETE FROM produtos WHERE sessao_id=?", (sessao_id,))
-                db_cursor.execute("DELETE FROM sessoes WHERE id=?", (sessao_id,))
-                db_conn.commit()
-                db_conn.close()
-                mostrar_estoque(lista_estoque)
-                entry_sessao.delete(0, tk.END)
-            else:
-                messagebox.showerror("Erro", "A sessão especificada não existe.")
-        else:
-            messagebox.showerror("Erro", "Por favor, especifique a sessão que deseja remover.")
-
-def remover_sessao(): #Joao
-    def mostrar_estoque(lista_estoque):
-        lista_estoque.delete(0, tk.END)
-
-        sessoes = obter_sessoes()
-
-        if not sessoes:
-            lista_estoque.insert(tk.END, "Nenhuma sessão encontrada.")
-            return
-
-        for sessao in sessoes:
-            lista_estoque.insert(tk.END, (f" "))
-            lista_estoque.insert(tk.END, (f"------------------------------ {sessao[1]} ------------------------------ "))
-            lista_estoque.insert(tk.END, (f" "))
-
-            db_conn = sqlite3.connect("estoque.db")
-            db_cursor = db_conn.cursor()
-
-            db_cursor.execute(
-                "SELECT produtos.nome, estoque.quantidade FROM produtos INNER JOIN estoque ON produtos.id = estoque.produto_id WHERE produtos.sessao_id=?",
-                (sessao[0],))
-            produtos = db_cursor.fetchall()
-
-            if not produtos:
-                lista_estoque.insert(tk.END, "Nenhum produto encontrado nesta sessão.")
-            else:
-                for produto in produtos:
-                    lista_estoque.insert(tk.END, (f"{produto[0]} > {produto[1]} unidades"))
-
+        db_cursor.execute("SELECT id FROM sessoes WHERE nome=?", (sessao,))
+        sessao_info = db_cursor.fetchone()
+        if sessao_info:
+            sessao_id = sessao_info[0]
+            db_cursor.execute("DELETE FROM estoque WHERE produto_id IN (SELECT id FROM produtos WHERE sessao_id=?)", (sessao_id,))
+            db_cursor.execute("DELETE FROM produtos WHERE sessao_id=?", (sessao_id,))
+            db_cursor.execute("DELETE FROM sessoes WHERE id=?", (sessao_id,))
+            db_conn.commit()
             db_conn.close()
+            mostrar_estoque(lista_estoque)
+            entry_sessao.delete(0, tk.END)
+        else:
+            messagebox.showerror("Erro", "A sessão especificada não existe.")
+    else:
+        messagebox.showerror("Erro", "Por favor, especifique a sessão que deseja remover.")
 
-def main():  #rafael interface do programa
+def main():
     root = tk.Tk()
-    root.title("Sistema de Estoque ONG Projeto Vidas - Vassouras")
+    root.title("Sistema de Estoque")
 
+    # root.iconbitmap("./un.ico")
     root['bg'] = '#0b5884'
     root.resizable(0, 0)
 
@@ -229,21 +199,22 @@ def main():  #rafael interface do programa
     entry_sessao = tk.Entry(root, font=("Arial", 15))
     entry_sessao.grid(row=2, column=1, padx=20, pady=20)
 
-    btn_adicionar = tk.Button(root, text="Adicionar ou Remover Produto", font=("Arial", 15), bg='white', command=)
+    btn_adicionar = tk.Button(root, text="Adicionar ou Remover Produto", font=("Arial", 15), bg='white', command=lambda: adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque))
     btn_adicionar.grid(row=3, column=0, columnspan=2, padx=20, pady=20)
 
-    btn_adicionar_sessao = tk.Button(root, text="Adicionar Sessão", font=("Arial", 15), bg='white', command=)
+    btn_adicionar_sessao = tk.Button(root, text="Adicionar Sessão", font=("Arial", 15), bg='white', command=lambda: adicionar_sessao(entry_sessao, lista_estoque))
     btn_adicionar_sessao.grid(row=4, column=0, columnspan=2, padx=20, pady=20)
 
-    btn_remover_sessao = tk.Button(root, text="Remover Sessão", font=("Arial", 15), bg='white', command=)
+    btn_remover_sessao = tk.Button(root, text="Remover Sessão", font=("Arial", 15), bg='white', command=lambda: remover_sessao(entry_sessao, lista_estoque))
     btn_remover_sessao.grid(row=5, column=0, columnspan=2, padx=20, pady=20)
 
     lista_estoque = tk.Listbox(root, font=("Arial", 13), height=22, width=55)
     lista_estoque.grid(row=6, column=0, columnspan=2, padx=20, pady=20, sticky="sn")
 
-    #mostrar_estoque()
+    mostrar_estoque(lista_estoque)
 
     root.mainloop()
 
-if __name__ == "__main__":
+
+if __name__ == "_main_":
     main()
