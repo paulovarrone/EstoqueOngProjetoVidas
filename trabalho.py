@@ -5,23 +5,23 @@ import sqlite3
 def create_tables():
     db_conn = sqlite3.connect("estoque.db")
     db_cursor = db_conn.cursor()
-    
+
     db_cursor.execute('''CREATE TABLE IF NOT EXISTS sessoes (
-                                id INTEGER PRIMARY KEY,
-                                nome TEXT NOT NULL)''')
-    
+                            id INTEGER PRIMARY KEY,
+                            nome TEXT NOT NULL)''')
+
     db_cursor.execute('''CREATE TABLE IF NOT EXISTS produtos (
-                                id INTEGER PRIMARY KEY,
-                                nome TEXT NOT NULL,
-                                sessao_id INTEGER NOT NULL,
-                                FOREIGN KEY(sessao_id) REFERENCES sessoes(id))''')
-    
+                            id INTEGER PRIMARY KEY,
+                            nome TEXT NOT NULL,
+                            sessao_id INTEGER NOT NULL,
+                            FOREIGN KEY(sessao_id) REFERENCES sessoes(id))''')
+
     db_cursor.execute('''CREATE TABLE IF NOT EXISTS estoque (
-                                id INTEGER PRIMARY KEY,
-                                produto_id INTEGER NOT NULL,
-                                quantidade INTEGER NOT NULL,
-                                FOREIGN KEY(produto_id) REFERENCES produtos(id))''')
-    
+                            id INTEGER PRIMARY KEY,
+                            produto_id INTEGER NOT NULL,
+                            quantidade INTEGER NOT NULL,
+                            FOREIGN KEY(produto_id) REFERENCES produtos(id))''')
+
     db_conn.commit()
     db_conn.close()
 
@@ -61,7 +61,8 @@ def adicionar_sessao(entry_sessao, lista_estoque):
     else:
         messagebox.showerror("Erro", "Por favor, preencha o campo de sessão.")
 
-def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque): 
+
+def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque):
     produto = entry_produto.get()
     quantidade = entry_quantidade.get()
     sessao = entry_sessao.get()
@@ -120,33 +121,34 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
     else:
         messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
 
-def mostrar_estoque(lista_estoque): #Douglas
+
+def mostrar_estoque(lista_estoque):
     lista_estoque.delete(0, tk.END)
 
     sessoes = obter_sessoes()
     
     if not sessoes:
-            lista_estoque.insert(tk.END, "Nenhuma sessão encontrada.")
-            return
+        lista_estoque.insert(tk.END, "Nenhuma sessão encontrada.")
+        return
 
     for sessao in sessoes:
-            lista_estoque.insert(tk.END, (f" "))
-            lista_estoque.insert(tk.END, (f"------------------------------ {sessao[1]} ------------------------------ "))
-            lista_estoque.insert(tk.END, (f" "))
-            
-            db_conn = sqlite3.connect("estoque.db")
-            db_cursor = db_conn.cursor()
+        lista_estoque.insert(tk.END, (f" "))
+        lista_estoque.insert(tk.END, (f"------------------------------ {sessao[1]} ------------------------------ "))
+        lista_estoque.insert(tk.END, (f" "))
+        
+        db_conn = sqlite3.connect("estoque.db")
+        db_cursor = db_conn.cursor()
 
-            db_cursor.execute("SELECT produtos.nome, estoque.quantidade FROM produtos INNER JOIN estoque ON produtos.id = estoque.produto_id WHERE produtos.sessao_id=?", (sessao[0],))
-            produtos = db_cursor.fetchall()
+        db_cursor.execute("SELECT produtos.nome, estoque.quantidade FROM produtos INNER JOIN estoque ON produtos.id = estoque.produto_id WHERE produtos.sessao_id=?", (sessao[0],))
+        produtos = db_cursor.fetchall()
 
-            if not produtos:
-                lista_estoque.insert(tk.END, "Nenhum produto encontrado nesta sessão.")
-            else:
-                for produto in produtos:
-                    lista_estoque.insert(tk.END, (f"{produto[0]} > {produto[1]} unidades"))
+        if not produtos:
+            lista_estoque.insert(tk.END, "Nenhum produto encontrado nesta sessão.")
+        else:
+            for produto in produtos:
+                lista_estoque.insert(tk.END, (f"{produto[0]} > {produto[1]} unidades"))
 
-            db_conn.close()
+        db_conn.close()
 
 def remover_sessao(entry_sessao, lista_estoque):
     sessao = entry_sessao.get()
@@ -216,5 +218,5 @@ def main():
     root.mainloop()
 
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     main()
