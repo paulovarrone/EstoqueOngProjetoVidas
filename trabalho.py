@@ -126,7 +126,7 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
         messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
 
 
-def mostrar_estoque(lista_estoque):  # Douglas
+def mostrar_estoque(lista_estoque):
     lista_estoque.delete(0, END)
     
     sessoes = obter_sessoes()
@@ -203,7 +203,7 @@ def remover_produto(entry_produto, entry_sessao, entry_quantidade, lista_estoque
         messagebox.showerror("Erro", "Por favor, especifique o produto que deseja remover.")
 
 
-def remover_sessao(entry_sessao, entry_produto, entry_quantidade, lista_estoque):  # Joao
+def remover_sessao(entry_sessao, entry_produto, entry_quantidade, lista_estoque):
     sessao = entry_sessao.get()
     
     if sessao:
@@ -263,7 +263,7 @@ def carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quan
             entry_sessao.insert(0, sessao_nome[0])
 
 
-def main():  # Rafael interface do programa
+def main():
     root = CTk()
     root.title("Estoque Projeto Vidas - Vassouras")
     root.iconbitmap("icon.ico")
@@ -292,20 +292,27 @@ def main():  # Rafael interface do programa
     entry_sessao = CTkEntry(root, font=("Arial", 15), width=200)
     entry_sessao.place(x=65, y=225)
     
-    btn_adicionar = CTkButton(root, text="Adicionar Produto", font=("Arial", 15),
+    btn_adicionar = CTkButton(root, text="Adicionar Produto", font=("Arial", 15), width=155,
                               command=lambda: adicionar_produto(entry_produto, entry_quantidade, entry_sessao,
                                                                 lista_estoque))
     btn_adicionar.place(x=360, y=45)
+
+    btn_remover_qtd = CTkButton(root, text="Remover Quantidade", font=("Arial", 15), width=155,
+                              command=lambda: adicionar_produto(entry_produto, entry_quantidade, entry_sessao,
+                                                                lista_estoque))
+
+    btn_remover_qtd.place(x=360, y=90)
     
-    btn_remover = CTkButton(root, text="Remover Produto", font=("Arial", 15),
+    btn_remover = CTkButton(root, text="Remover Produto", font=("Arial", 15), width=155,
                             command=lambda: remover_produto(entry_produto, entry_sessao, entry_quantidade, lista_estoque))
-    btn_remover.place(x=360, y=95)
     
-    btn_adicionar_sessao = CTkButton(root, text="Adicionar Sessão", font=("Arial", 15),
+    btn_remover.place(x=360, y=135)
+    
+    btn_adicionar_sessao = CTkButton(root, text="Adicionar Sessão", font=("Arial", 15), width=155,
                                      command=lambda: adicionar_sessao(entry_sessao, lista_estoque))
-    btn_adicionar_sessao.place(x=360, y=175)
+    btn_adicionar_sessao.place(x=360, y=180)
     
-    btn_remover_sessao = CTkButton(root, text="Remover Sessão", font=("Arial", 15),
+    btn_remover_sessao = CTkButton(root, text="Remover Sessão", font=("Arial", 15), width=155,
                                    command=lambda: remover_sessao(entry_sessao, entry_produto, entry_quantidade,
                                                                   lista_estoque))
     btn_remover_sessao.place(x=360, y=225)
