@@ -285,12 +285,16 @@ def remover_sessao(entry_sessao, entry_produto, entry_quantidade, lista_estoque)
 
 
 def carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quantidade, entry_sessao):
+
     selected_item = lista_estoque.curselection()
+
     if not selected_item:
         return
     
     index = selected_item[0]
     item_text = lista_estoque.get(index)
+
+    
     
     if " > " in item_text:
         produto_nome, quantidade_text = item_text.split(" > ")
@@ -305,7 +309,7 @@ def carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quan
         sessao_nome = db_cursor.fetchone()
         
         db_conn.close()
-        
+
         if sessao_nome:
             entry_produto.delete(0, END)
             entry_produto.insert(0, produto_nome)
@@ -315,7 +319,10 @@ def carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quan
             
             entry_sessao.delete(0, END)
             entry_sessao.insert(0, sessao_nome[0])
-
+    else:
+        sessao_nome = item_text.replace('-', '')
+        entry_sessao.delete(0, END)
+        entry_sessao.insert(0, sessao_nome)
 
 def main():
     root = CTk()
