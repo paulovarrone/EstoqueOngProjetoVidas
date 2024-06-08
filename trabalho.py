@@ -321,8 +321,11 @@ def carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quan
             entry_sessao.insert(0, sessao_nome[0])
     else:
         sessao_nome = item_text.replace('-', '')
+        sessao_nome = sessao_nome.replace(' ', '')
         entry_sessao.delete(0, END)
         entry_sessao.insert(0, sessao_nome)
+        entry_produto.delete(0, END)
+        entry_quantidade.delete(0, END)
 
 def main():
     root = CTk()
