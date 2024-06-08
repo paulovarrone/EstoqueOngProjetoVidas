@@ -330,7 +330,7 @@ def carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quan
 def main():
     root = CTk()
     root.title("Estoque Projeto Vidas - Vassouras")
-    root.iconbitmap("icon.ico")
+    #root.iconbitmap("icon.ico")
     root.geometry('600x600')
     customtkinter.set_appearance_mode('dark')
     customtkinter.set_default_color_theme('dark-blue')
