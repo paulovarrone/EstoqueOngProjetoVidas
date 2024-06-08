@@ -239,8 +239,12 @@ def remover_produto(entry_produto, entry_sessao, entry_quantidade, lista_estoque
         db_cursor = db_conn.cursor()
         db_cursor.execute("SELECT id FROM produtos WHERE nome=?", (produto,))
         produto_info = db_cursor.fetchone()
+        
         if produto_info:
-            db_cursor.execute("DELETE FROM produtos WHERE nome=?", (produto,))
+            produto_id = produto_info[0]
+            db_cursor.execute("DELETE FROM estoque WHERE produto_id=?", (produto_id,))
+            db_cursor.execute("DELETE FROM produtos WHERE id=?", (produto_id,))
+
             db_conn.commit()
             db_conn.close()
             mostrar_estoque(lista_estoque)
