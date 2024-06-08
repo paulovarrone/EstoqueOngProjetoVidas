@@ -67,7 +67,7 @@ def adicionar_sessao(entry_sessao, lista_estoque):
         messagebox.showerror("Erro", "Por favor, preencha o campo de sessão.")
 
 
-def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque):  # Lucas
+def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoque): 
     produto = entry_produto.get()
     quantidade = entry_quantidade.get()
     sessao = entry_sessao.get()
@@ -108,11 +108,61 @@ def adicionar_produto(entry_produto, entry_quantidade, entry_sessao, lista_estoq
                 db_cursor.execute("UPDATE estoque SET quantidade=? WHERE produto_id=?", (nova_quantidade, produto_id))
             else:
                 db_cursor.execute("INSERT INTO estoque (produto_id, quantidade) VALUES (?, ?)",
-                                  (produto_id, quantidade))
-                nova_quantidade = int(quantidade)
+                                  (produto_id, quantidade))   
+        
+        db_conn.commit()
+        db_conn.close()
+        
+        mostrar_estoque(lista_estoque)
+        entry_produto.delete(0, END)
+        entry_quantidade.delete(0, END)
+        entry_sessao.delete(0, END)
+    else:
+        messagebox.showwarning("Erro", "Por favor, preencha todos os campos.")
+
+def remover_qtd(entry_produto, entry_quantidade, entry_sessao, lista_estoque):
+    produto = entry_produto.get()
+    quantidade = entry_quantidade.get()
+    sessao = entry_sessao.get()
+    
+    if produto and quantidade and sessao:
+        db_conn = sqlite3.connect("estoque.db")
+        db_cursor = db_conn.cursor()
+        
+        # Verificar se a sessão existe
+        db_cursor.execute("SELECT id FROM sessoes WHERE nome=?", (sessao,))
+        sessao_info = db_cursor.fetchone()
+        if not sessao_info:
+            messagebox.showwarning("Erro", "A sessão especificada não existe.")
+            db_conn.close()
+            return
+        
+        sessao_id = sessao_info[0]
+        
+        # Verificar se o produto existe na sessão
+        db_cursor.execute("SELECT id FROM produtos WHERE nome=? AND sessao_id=?", (produto, sessao_id))
+        produto_info = db_cursor.fetchone()
+        if not produto_info:
+            messagebox.showwarning("Erro", "O produto especificado não existe na sessão.")
+            db_conn.close()
+            return
+        
+        produto_id = produto_info[0]
+        
+        # Verificar a quantidade existente no estoque
+        db_cursor.execute("SELECT quantidade FROM estoque WHERE produto_id=?", (produto_id,))
+        quantidade_existente = db_cursor.fetchone()
+        
+        if quantidade_existente:
+            nova_quantidade = quantidade_existente[0] - int(quantidade)
+            if nova_quantidade < 0:
+                messagebox.showwarning("Erro", "A quantidade a remover é maior que a quantidade disponível no estoque.")
+                db_conn.close()
+                return
+            
+            db_cursor.execute("UPDATE estoque SET quantidade=? WHERE produto_id=?", (nova_quantidade, produto_id))
             
             if nova_quantidade == 0:
-                # Se a nova quantidade for zero, atualiza no banco e mantem o produto
                 db_cursor.execute("UPDATE estoque SET quantidade=0 WHERE produto_id=?", (produto_id,))
         
         db_conn.commit()
@@ -156,7 +206,7 @@ def mostrar_estoque(lista_estoque):
         
         db_conn.close()
     
-    def remover_sessao(entry_sessao, lista_estoque):
+def remover_sessao(entry_sessao, lista_estoque):
         sessao = entry_sessao.get()
         
         if sessao:
@@ -200,7 +250,7 @@ def remover_produto(entry_produto, entry_sessao, entry_quantidade, lista_estoque
         else:
             messagebox.showerror("Erro", "O produto especificado não existe.")
     else:
-        messagebox.showerror("Erro", "Por favor, especifique o produto que deseja remover.")
+        messagebox.showerror("Erro", "Por favor, especifique o produto que deseja remover.") 
 
 
 def remover_sessao(entry_sessao, entry_produto, entry_quantidade, lista_estoque):
@@ -298,8 +348,8 @@ def main():
     btn_adicionar.place(x=360, y=45)
 
     btn_remover_qtd = CTkButton(root, text="Remover Quantidade", font=("Arial", 15), width=155,
-                              command=lambda: adicionar_produto(entry_produto, entry_quantidade, entry_sessao,
-                                                                lista_estoque))
+                              command=lambda: remover_qtd(entry_produto, entry_quantidade, entry_sessao,
+                                                            lista_estoque))
 
     btn_remover_qtd.place(x=360, y=90)
     
@@ -319,6 +369,7 @@ def main():
     
     lista_estoque = Listbox(root, font=("Arial", 13), height=15, width=70)
     lista_estoque.pack(side='bottom', expand=False, pady=20, padx=20, fill='x')
+
     lista_estoque.bind('<<ListboxSelect>>',
                        lambda event: carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quantidade,
                                                                   entry_sessao))
