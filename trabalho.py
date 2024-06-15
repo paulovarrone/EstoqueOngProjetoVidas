@@ -3,7 +3,8 @@ import customtkinter
 from customtkinter import *
 from tkinter import messagebox
 import sqlite3
-
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 def create_tables():
     db_conn = sqlite3.connect("estoque.db")
@@ -320,6 +321,23 @@ def carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quan
             entry_sessao.delete(0, END)
             entry_sessao.insert(0, sessao_nome[0])
 
+def gerar_pdf(lista_estoque):
+    c = canvas.Canvas("estoque.pdf", pagesize=letter)
+    width, height = letter  
+
+    y = height - 30  
+    for i in range(lista_estoque.size()):
+        item = lista_estoque.get(i)
+        c.drawString(72, y, str(item))  
+        y -= 20  
+        
+        if y < 40:
+            c.showPage()  
+            y = height - 30  
+
+    c.save()
+    messagebox.showinfo("PDF gerado", "O PDF foi criado com sucesso na  pasta  do projeto.")
+
 
 def main():
     root = CTk()
@@ -382,6 +400,11 @@ def main():
                        lambda event: carregar_produto_selecionado(event, lista_estoque, entry_produto, entry_quantidade,
                                                                   entry_sessao))
     
+    btn_gerar_pdf = CTkButton(root, text="Gerar PDF do Estoque", font=("Arial", 15), width=200,
+                          command=lambda: gerar_pdf(lista_estoque))
+    
+    btn_gerar_pdf.place(x=380, y=556)
+                    
     mostrar_estoque(lista_estoque)
     
     root.mainloop()
